@@ -10,7 +10,7 @@ services:
       - DATABASE_URI=postgresql://movie_db_username:movie_db_password@movie_db/movie_db_dev
       - CAST_SERVICE_HOST_URL=http://cast_service:8000/api/v1/casts/
     depends_on:
-      - movie_db
+      - cast_service
 
   movie_db:
     image: postgres:12.1-alpine
@@ -20,6 +20,8 @@ services:
       - POSTGRES_USER=movie_db_username
       - POSTGRES_PASSWORD=movie_db_password
       - POSTGRES_DB=movie_db_dev
+    depends_on:
+      - cast_db
 
   cast_service:
     build: ./cast-service
@@ -31,7 +33,7 @@ services:
     environment:
       - DATABASE_URI=postgresql://cast_db_username:cast_db_password@cast_db/cast_db_dev
     depends_on:
-      - cast_db
+      - movie_db
 
   cast_db:
     image: postgres:12.1-alpine
@@ -48,9 +50,6 @@ services:
       - "8080:8080"
     volumes:
       - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - cast_service
-      - movie_service
 
 volumes:
   postgres_data_movie:
